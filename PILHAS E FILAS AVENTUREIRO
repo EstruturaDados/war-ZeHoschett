@@ -1,0 +1,223 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX_FILA 5   // Tamanho fixo da fila
+#define MAX_PILHA 3  // Capacidade da pilha de reserva
+
+// Estrutura que representa uma peça do Tetris
+typedef struct {
+    char nome;  // Tipo da peça ('I', 'O', 'T', 'L')
+    int id;     // Identificador único
+} Peca;
+
+// Estrutura da fila circular
+typedef struct {
+    Peca pecas[MAX_FILA];
+    int frente, tras, tamanho;
+} Fila;
+
+// Estrutura da pilha de reserva
+typedef struct {
+    Peca pecas[MAX_PILHA];
+    int topo;
+} Pilha;
+
+// --- Protótipos das funções ---
+void inicializarFila(Fila *f);
+void inicializarPilha(Pilha *p);
+int filaCheia(Fila *f);
+int filaVazia(Fila *f);
+int pilhaCheia(Pilha *p);
+int pilhaVazia(Pilha *p);
+void enfileirar(Fila *f, Peca p);
+Peca desenfileirar(Fila *f);
+void empilhar(Pilha *p, Peca p);
+Peca desempilhar(Pilha *p);
+void exibirFila(Fila *f);
+void exibirPilha(Pilha *p);
+Peca gerarPeca(int id);
+
+// --- Função principal ---
+int main() {
+    Fila fila;
+    Pilha pilha;
+    int opcao, contadorID = 0;
+
+    inicializarFila(&fila);
+    inicializarPilha(&pilha);
+    srand(time(NULL));
+
+    // Inicializa a fila com 5 peças
+    for (int i = 0; i < MAX_FILA; i++) {
+        enfileirar(&fila, gerarPeca(contadorID++));
+    }
+
+    do {
+        printf("\n==============================\n");
+        printf("   ESTADO ATUAL DO JOGO\n");
+        printf("==============================\n");
+        printf("Fila de peças futuras:\n");
+        exibirFila(&fila);
+        printf("Pilha de reserva (Topo -> Base):\n");
+        exibirPilha(&pilha);
+        printf("==============================\n");
+
+        printf("\nOpções de ação:\n");
+        printf("1 - Jogar peça (remove da fila)\n");
+        printf("2 - Reservar peça (fila -> pilha)\n");
+        printf("3 - Usar peça reservada (remove do topo)\n");
+        printf("0 - Sair\n");
+        printf("Escolha: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                if (!filaVazia(&fila)) {
+                    Peca jogada = desenfileirar(&fila);
+                    printf("\nPeça jogada: [%c %d]\n", jogada.nome, jogada.id);
+
+                    // Gera uma nova peça automaticamente
+                    enfileirar(&fila, gerarPeca(contadorID++));
+                } else {
+                    printf("\nFila vazia! Nenhuma peça disponível.\n");
+                }
+                break;
+
+            case 2:
+                if (filaVazia(&fila)) {
+                    printf("\nFila vazia! Nenhuma peça para reservar.\n");
+                } else if (pilhaCheia(&pilha)) {
+                    printf("\nPilha cheia! Não é possível reservar mais peças.\n");
+                } else {
+                    Peca reservada = desenfileirar(&fila);
+                    empilhar(&pilha, reservada);
+                    printf("\nPeça [%c %d] reservada!\n", reservada.nome, reservada.id);
+
+                    // Gera nova peça para o final da fila
+                    enfileirar(&fila, gerarPeca(contadorID++));
+                }
+                break;
+
+            case 3:
+                if (pilhaVazia(&pilha)) {
+                    printf("\nNenhuma peça reservada para usar.\n");
+                } else {
+                    Peca usada = desempilhar(&pilha);
+                    printf("\nPeça usada: [%c %d]\n", usada.nome, usada.id);
+                }
+                break;
+
+            case 0:
+                printf("\nEncerrando o jogo... Até mais!\n");
+                break;
+
+            default:
+                printf("\nOpção inválida! Tente novamente.\n");
+        }
+
+    } while (opcao != 0);
+
+    return 0;
+}
+
+// --- Funções da fila circular ---
+
+void inicializarFila(Fila *f) {
+    f->frente = 0;
+    f->tras = -1;
+    f->tamanho = 0;
+}
+
+int filaCheia(Fila *f) {
+    return (f->tamanho == MAX_FILA);
+}
+
+int filaVazia(Fila *f) {
+    return (f->tamanho == 0);
+}
+
+void enfileirar(Fila *f, Peca p) {
+    if (filaCheia(f)) return;
+    f->tras = (f->tras + 1) % MAX_FILA;
+    f->pecas[f->tras] = p;
+    f->tamanho++;
+}
+
+Peca desenfileirar(Fila *f) {
+    Peca p;
+    p.nome = '?';
+    p.id = -1;
+
+    if (filaVazia(f)) return p;
+
+    p = f->pecas[f->frente];
+    f->frente = (f->frente + 1) % MAX_FILA;
+    f->tamanho--;
+    return p;
+}
+
+void exibirFila(Fila *f) {
+    if (filaVazia(f)) {
+        printf("[Fila vazia]\n");
+        return;
+    }
+
+    int i = f->frente;
+    for (int c = 0; c < f->tamanho; c++) {
+        printf("[%c %d] ", f->pecas[i].nome, f->pecas[i].id);
+        i = (i + 1) % MAX_FILA;
+    }
+    printf("\n");
+}
+
+// --- Funções da pilha ---
+
+void inicializarPilha(Pilha *p) {
+    p->topo = -1;
+}
+
+int pilhaCheia(Pilha *p) {
+    return (p->topo == MAX_PILHA - 1);
+}
+
+int pilhaVazia(Pilha *p) {
+    return (p->topo == -1);
+}
+
+void empilhar(Pilha *p, Peca nova) {
+    if (pilhaCheia(p)) return;
+    p->pecas[++p->topo] = nova;
+}
+
+Peca desempilhar(Pilha *p) {
+    Peca peca;
+    peca.nome = '?';
+    peca.id = -1;
+
+    if (pilhaVazia(p)) return peca;
+
+    peca = p->pecas[p->topo--];
+    return peca;
+}
+
+void exibirPilha(Pilha *p) {
+    if (pilhaVazia(p)) {
+        printf("[Pilha vazia]\n");
+        return;
+    }
+
+    for (int i = p->topo; i >= 0; i--) {
+        printf("[%c %d] ", p->pecas[i].nome, p->pecas[i].id);
+    }
+    printf("\n");
+}
+
+// --- Geração automática de peças ---
+Peca gerarPeca(int id) {
+    Peca p;
+    char tipos[] = {'I', 'O', 'T', 'L'};
+    p.nome = tipos[rand() % 4];
+    p.id = id;
+    return p;
+}
