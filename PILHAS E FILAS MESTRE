@@ -1,0 +1,198 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TAM_FILA 5
+#define TAM_PILHA 3
+
+// Códigos de cores ANSI para o terminal
+#define RED "\033[1;31m"
+#define GREEN "\033[1;32m"
+#define YELLOW "\033[1;33m"
+#define BLUE "\033[1;34m"
+#define RESET "\033[0m"
+
+// Estrutura da peça
+typedef struct {
+    char nome; // 'I', 'O', 'T', 'L'
+    int id;    // identificador único
+} Peca;
+
+// Fila circular
+typedef struct {
+    Peca pecas[TAM_FILA];
+    int inicio;
+    int fim;
+    int quantidade;
+} Fila;
+
+// Pilha linear
+typedef struct {
+    Peca pecas[TAM_PILHA];
+    int topo;
+} Pilha;
+
+// Protótipos
+Peca gerarPeca(int id);
+void inicializarFila(Fila *fila);
+void inicializarPilha(Pilha *pilha);
+void exibirEstado(Fila fila, Pilha pilha);
+void jogarPeca(Fila *fila, int *contadorId);
+void reservarPeca(Fila *fila, Pilha *pilha, int *contadorId);
+void usarPeca(Pilha *pilha);
+void trocarTopo(Fila *fila, Pilha *pilha);
+void trocaMultipla(Fila *fila, Pilha *pilha);
+const char* corPeca(char tipo);
+
+// Função principal
+int main() {
+    Fila fila;
+    Pilha pilha;
+    int opcao;
+    int contadorId = 0;
+
+    srand(time(NULL));
+
+    inicializarFila(&fila);
+    inicializarPilha(&pilha);
+
+    // Preencher a fila inicialmente
+    for(int i = 0; i < TAM_FILA; i++) {
+        fila.pecas[i] = gerarPeca(contadorId++);
+        fila.fim = (fila.fim + 1) % TAM_FILA;
+        fila.quantidade++;
+    }
+
+    do {
+        exibirEstado(fila, pilha);
+        printf("\nOpções disponíveis:\n");
+        printf("1 - Jogar peça da frente da fila\n");
+        printf("2 - Enviar peça da fila para a pilha de reserva\n");
+        printf("3 - Usar peça da pilha de reserva\n");
+        printf("4 - Trocar peça da frente da fila com o topo da pilha\n");
+        printf("5 - Trocar os 3 primeiros da fila com as 3 peças da pilha\n");
+        printf("0 - Sair\n");
+        printf("Opção escolhida: ");
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 1: jogarPeca(&fila, &contadorId); break;
+            case 2: reservarPeca(&fila, &pilha, &contadorId); break;
+            case 3: usarPeca(&pilha); break;
+            case 4: trocarTopo(&fila, &pilha); break;
+            case 5: trocaMultipla(&fila, &pilha); break;
+            case 0: printf("Encerrando o programa...\n"); break;
+            default: printf("Opção inválida!\n");
+        }
+    } while(opcao != 0);
+
+    return 0;
+}
+
+// Gera peça aleatória
+Peca gerarPeca(int id) {
+    Peca p;
+    char tipos[] = {'I','O','T','L'};
+    p.nome = tipos[rand() % 4];
+    p.id = id;
+    return p;
+}
+
+// Inicializa fila
+void inicializarFila(Fila *fila) {
+    fila->inicio = 0;
+    fila->fim = 0;
+    fila->quantidade = 0;
+}
+
+// Inicializa pilha
+void inicializarPilha(Pilha *pilha) {
+    pilha->topo = -1;
+}
+
+// Retorna cor da peça
+const char* corPeca(char tipo) {
+    switch(tipo) {
+        case 'I': return CYAN; // adicionei CYAN para diferenciar
+        case 'O': return YELLOW;
+        case 'T': return PURPLE;
+        case 'L': return BLUE;
+        default: return RESET;
+    }
+}
+
+// Exibe estado com cores
+void exibirEstado(Fila fila, Pilha pilha) {
+    printf("\n====== ESTADO ATUAL ======\n");
+    printf("Fila: ");
+    int i = fila.inicio;
+    for(int c = 0; c < fila.quantidade; c++) {
+        char tipo = fila.pecas[i].nome;
+        printf("[%s%c %d%s] ", corPeca(tipo), tipo, fila.pecas[i].id, RESET);
+        i = (i + 1) % TAM_FILA;
+    }
+
+    printf("\nPilha (Topo -> Base): ");
+    for(int j = pilha.topo; j >= 0; j--) {
+        char tipo = pilha.pecas[j].nome;
+        printf("[%s%c %d%s] ", corPeca(tipo), tipo, pilha.pecas[j].id, RESET);
+    }
+    printf("\n=========================\n");
+}
+
+// Jogar peça
+void jogarPeca(Fila *fila, int *contadorId) {
+    if(fila->quantidade == 0) { printf("Fila vazia!\n"); return; }
+    printf("Peça [%c %d] jogada!\n", fila->pecas[fila->inicio].nome, fila->pecas[fila->inicio].id);
+    fila->inicio = (fila->inicio + 1) % TAM_FILA;
+    fila->quantidade--;
+
+    // Nova peça
+    fila->pecas[fila->fim] = gerarPeca((*contadorId)++);
+    fila->fim = (fila->fim + 1) % TAM_FILA;
+    fila->quantidade++;
+}
+
+// Reservar peça
+void reservarPeca(Fila *fila, Pilha *pilha, int *contadorId) {
+    if(fila->quantidade == 0) { printf("Fila vazia!\n"); return; }
+    if(pilha->topo >= TAM_PILHA - 1) { printf("Pilha cheia!\n"); return; }
+
+    pilha->pecas[++pilha->topo] = fila->pecas[fila->inicio];
+    printf("Peça [%c %d] reservada!\n", pilha->pecas[pilha->topo].nome, pilha->pecas[pilha->topo].id);
+
+    fila->inicio = (fila->inicio + 1) % TAM_FILA;
+    fila->quantidade--;
+
+    fila->pecas[fila->fim] = gerarPeca((*contadorId)++);
+    fila->fim = (fila->fim + 1) % TAM_FILA;
+    fila->quantidade++;
+}
+
+// Usar peça da pilha
+void usarPeca(Pilha *pilha) {
+    if(pilha->topo == -1) { printf("Pilha vazia!\n"); return; }
+    printf("Peça [%c %d] usada!\n", pilha->pecas[pilha->topo].nome, pilha->pecas[pilha->topo].id);
+    pilha->topo--;
+}
+
+// Troca topo da pilha com frente da fila
+void trocarTopo(Fila *fila, Pilha *pilha) {
+    if(fila->quantidade == 0 || pilha->topo == -1) { printf("Não é possível trocar!\n"); return; }
+    Peca temp = fila->pecas[fila->inicio];
+    fila->pecas[fila->inicio] = pilha->pecas[pilha->topo];
+    pilha->pecas[pilha->topo] = temp;
+    printf("Troca realizada entre topo da pilha e frente da fila!\n");
+}
+
+// Troca múltipla 3x3
+void trocaMultipla(Fila *fila, Pilha *pilha) {
+    if(fila->quantidade < 3 || pilha->topo < 2) { printf("Não há peças suficientes para troca múltipla!\n"); return; }
+    for(int i = 0; i < 3; i++) {
+        int indiceFila = (fila->inicio + i) % TAM_FILA;
+        Peca temp = fila->pecas[indiceFila];
+        fila->pecas[indiceFila] = pilha->pecas[pilha->topo - i];
+        pilha->pecas[pilha->topo - i] = temp;
+    }
+    printf("Troca múltipla realizada!\n");
+}
