@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Estrutura que representa uma sala da mansão
+typedef struct Sala {
+    char nome[50];
+    struct Sala *esquerda;
+    struct Sala *direita;
+} Sala;
+
+// ================================
+// Função: criarSala()
+// Cria dinamicamente uma nova sala com o nome especificado
+// ================================
+Sala* criarSala(const char *nome) {
+    Sala *novaSala = (Sala*) malloc(sizeof(Sala));
+    if (novaSala == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+    strcpy(novaSala->nome, nome);
+    novaSala->esquerda = NULL;
+    novaSala->direita = NULL;
+    return novaSala;
+}
+
+// ================================
+// Função: explorarSalas()
+// Permite a navegação do jogador pela árvore (mansão)
+// Retorna 1 se o jogador quiser explorar novamente, 0 se quiser sair
+// ================================
+int explorarSalas(Sala *raiz) {
+    Sala *atual = raiz;
+    char escolha;
+
+    printf("\nVocê está no %s.\n", atual->nome);
+
+    while (1) {
+        // Se for uma sala sem saídas (folha)
+        if (atual->esquerda == NULL && atual->direita == NULL) {
+            printf("\nVocê chegou ao fim da exploração!\n");
+            printf("O cômodo '%s' não possui mais caminhos.\n", atual->nome);
+            printf("\nDeseja voltar ao Hall de entrada? (s/n): ");
+            scanf(" %c", &escolha);
+            if (escolha == 's' || escolha == 'S') {
+                atual = raiz; // volta para o início
+                printf("\nVocê retornou ao %s.\n", atual->nome);
+            } else {
+                return 0; // encerra o jogo
+            }
+        }
+
+        printf("\nEscolha um caminho a seguir:\n");
+        if (atual->esquerda != NULL)
+            printf(" [e] Ir para %s (esquerda)\n", atual->esquerda->nome);
+        if (atual->direita != NULL)
+            printf(" [d] Ir para %s (direita)\n", atual->direita->nome);
+        printf(" [s] Sair da mansão\n");
+        printf("Opção: ");
+        scanf(" %c", &escolha);
+
+        if (escolha == 'e' && atual->esquerda != NULL) {
+            atual = atual->esquerda;
+            printf("\nVocê entrou em: %s\n", atual->nome);
+        } 
+        else if (escolha == 'd' && atual->direita != NULL) {
+            atual = atual->direita;
+            printf("\nVocê entrou em: %s\n", atual->nome);
+        } 
+        else if (escolha == 's' || escolha == 'S') {
+            printf("\nVocê decidiu encerrar sua exploração.\n");
+            return 0;
+        } 
+        else {
+            printf("Opção inválida! Tente novamente.\n");
+        }
+    }
+}
+
+// ================================
+// Função: liberarArvore()
+// Libera a memória alocada pela árvore binária (recursiva)
+// ================================
+void liberarArvore(Sala *raiz) {
+    if (raiz == NULL) return;
+    liberarArvore(raiz->esquerda);
+    liberarArvore(raiz->direita);
+    free(raiz);
+}
+
+// ================================
+// Função principal: main()
+// Monta a estrutura fixa da mansão e inicia a exploração
+// ================================
+int main() {
+    // Criação das salas (nós da árvore)
+    Sala *hall = criarSala("Hall de entrada");
+    Sala *salaEstar = criarSala("Sala de estar");
+    Sala *cozinha = criarSala("Cozinha");
+    Sala *biblioteca = criarSala("Biblioteca");
+    Sala *jardim = criarSala("Jardim");
+    Sala *porao = criarSala("Porão");
+
+    // Conexões entre as salas
+    hall->esquerda = salaEstar;
+    hall->direita = cozinha;
+    salaEstar->esquerda = biblioteca;
+    salaEstar->direita = jardim;
+    cozinha->direita = porao;
+
+    // Introdução do jogo
+    printf("===========================================\n");
+    printf("     🎩 DETECTIVE QUEST: A MANSÃO MISTERIOSA\n");
+    printf("===========================================\n");
+    printf("Você acaba de entrar em uma antiga mansão...\n");
+    printf("Seu objetivo é explorar cada cômodo e descobrir seus segredos.\n");
+    printf("-------------------------------------------\n");
+
+    int continuar = 1;
+
+    while (continuar) {
+        continuar = explorarSalas(hall);
+
+        if (continuar == 0) {
+            char resp;
+            printf("\nDeseja iniciar uma nova exploração? (s/n): ");
+            scanf(" %c", &resp);
+            if (resp == 's' || resp == 'S')
+                continuar = 1;
+            else
+                continuar = 0;
+        }
+    }
+
+    printf("\nObrigado por jogar Detective Quest!\n");
+    printf("Volte em breve para novas investigações. 🕵️‍♂️\n");
+
+    liberarArvore(hall);
+    return 0;
+}
