@@ -111,7 +111,7 @@ int main() {
 
     // Introdução do jogo
     printf("===========================================\n");
-    printf("     🎩 DETECTIVE QUEST: A MANSÃO MISTERIOSA\n");
+    printf("      DETECTIVE QUEST: A MANSÃO MISTERIOSA\n");
     printf("===========================================\n");
     printf("Você acaba de entrar em uma antiga mansão...\n");
     printf("Seu objetivo é explorar cada cômodo e descobrir seus segredos.\n");
@@ -134,7 +134,7 @@ int main() {
     }
 
     printf("\nObrigado por jogar Detective Quest!\n");
-    printf("Volte em breve para novas investigações. 🕵️‍♂️\n");
+    printf("Volte em breve para novas investigações. \n");
 
     liberarArvore(hall);
     return 0;
