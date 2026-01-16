@@ -89,11 +89,11 @@ void exibirPistas(PistaNode *raiz) {
 void explorarSalasComPistas(Sala *atual, PistaNode **pistas) {
     char opcao;
 
-    printf("\n🕵️ Você está no %s.\n", atual->nome);
+    printf("\n Você está no %s.\n", atual->nome);
 
     // Coleta automática da pista (se houver)
     if (strlen(atual->pista) > 0) {
-        printf("📜 Você encontrou uma pista: \"%s\"\n", atual->pista);
+        printf(" Você encontrou uma pista: \"%s\"\n", atual->pista);
         *pistas = inserirPista(*pistas, atual->pista);
     } else {
         printf("Nenhuma pista encontrada aqui.\n");
@@ -119,7 +119,7 @@ void explorarSalasComPistas(Sala *atual, PistaNode **pistas) {
             return;
         } 
         else if (opcao == 's' || opcao == 'S') {
-            printf("\n🔎 Você decidiu encerrar a exploração.\n");
+            printf("\n Você decidiu encerrar a exploração.\n");
             return;
         } 
         else {
@@ -174,7 +174,7 @@ int main() {
     PistaNode *pistas = NULL;
 
     printf("==============================================\n");
-    printf("🎩 DETECTIVE QUEST: A MANSÃO DAS PISTAS\n");
+    printf(" DETECTIVE QUEST: A MANSÃO DAS PISTAS\n");
     printf("==============================================\n");
     printf("Explore a mansão e colete pistas para resolver o mistério!\n");
 
@@ -183,7 +183,7 @@ int main() {
 
     // Exibe as pistas encontradas
     printf("\n==============================================\n");
-    printf("📜 PISTAS COLETADAS (em ordem alfabética):\n");
+    printf(" PISTAS COLETADAS (em ordem alfabética):\n");
     printf("==============================================\n");
 
     if (pistas == NULL) {
@@ -193,7 +193,7 @@ int main() {
     }
 
     printf("\nObrigado por jogar Detective Quest!\n");
-    printf("Boa sorte na investigação, detetive. 🕵️‍♂️\n");
+    printf("Boa sorte na investigação, detetive. \n");
 
     // Libera memória
     liberarArvoreSalas(hall);
