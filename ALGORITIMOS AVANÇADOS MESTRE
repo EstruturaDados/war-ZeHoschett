@@ -327,12 +327,7 @@ void liberarSalas(Sala *raiz) {
 int main() {
     // ---------- Montagem fixa do mapa (árvore de salas) ----------
     /*
-           Hall
-           /  \
-        Estar  Cozinha
-        /  \      \
-     Biblioteca Jardim Porão
-    */
+      
     Sala *hall = criarSala("Hall de Entrada", "Pegada úmida próximo ao tapete.");
     Sala *salaEstar = criarSala("Sala de Estar", "Relógio parado às 03:15.");
     Sala *cozinha = criarSala("Cozinha", "Xícara com resquício de um aroma raro.");
@@ -365,7 +360,7 @@ int main() {
 
     // ---------- Interação com o jogador ----------
     printf("=============================================\n");
-    printf("  🎩 DETECTIVE QUEST - Julgamento Final\n");
+    printf("   DETECTIVE QUEST - Julgamento Final\n");
     printf("=============================================\n");
     printf("Explore a mansão, colete pistas e acuse o culpado.\n");
     printf("Navegue a partir do Hall de Entrada.\n");
