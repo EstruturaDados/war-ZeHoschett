@@ -165,13 +165,13 @@ int main() {
     printf("\n[Selection Sort - Prioridade] Tempo: %.5f s | Comparações: %d\n", tempoSelection, compSelection);
 
     // --- Relatório Comparativo ---
-    printf("\n================== RELATÓRIO DE DESEMPENHO ==================\n");
+    printf("\n========== RELATÓRIO DE DESEMPENHO ===========\n");
     printf("Algoritmo\t\tTempo (s)\tComparações\n");
-    printf("-------------------------------------------------------------\n");
+    printf("---------------\n");
     printf("Bubble Sort (Nome)\t%.5f\t%d\n", tempoBubble, compBubble);
     printf("Insertion Sort (Tipo)\t%.5f\t%d\n", tempoInsertion, compInsertion);
     printf("Selection Sort (Prior)\t%.5f\t%d\n", tempoSelection, compSelection);
-    printf("-------------------------------------------------------------\n");
+    printf("----------------------\n");
 
     // Determinar o melhor algoritmo
     double menorTempo = tempoBubble;
@@ -187,7 +187,7 @@ int main() {
     }
 
     printf("Melhor desempenho geral: %s (%.5f s)\n", melhorAlg, menorTempo);
-    printf("=============================================================\n");
+    printf("=====================\n");
 
     return 0;
 }
